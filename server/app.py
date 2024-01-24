@@ -61,6 +61,26 @@ def update_product(product_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
+@app.route('/api/profits', methods=['GET'])
+def get_profits():
+    profits_data = calculate_profits()
+    return jsonify({'profits': profits_data})
+
+@app.route('/api/contribution-analysis', methods=['GET'])
+def get_contribution_analysis():
+    contribution_data = calculate_contribution_analysis()
+    return jsonify({'contributionAnalysis': contribution_data})
+
+def calculate_profits():
+   
+    total_profits = Product.query.join(OrderItem).filter(Order.status == 'completed').with_entities(Product.price).scalar()
+    return total_profits
+
+def calculate_contribution_analysis():
+   
+    contribution_data = Product.query.join(OrderItem).filter(Order.status == 'completed').with_entities(Product.name, Product.quantity_in_stock).all()
+    return contribution_data
 
 if __name__ == '__main__':
     app.run(debug=True)
+   
