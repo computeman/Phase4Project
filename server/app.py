@@ -110,10 +110,15 @@ def calculate_contribution_analysis():
     return contribution_data
 
 
-# Route to get all orders
+# Route to get orders for the currently logged-in user
 @app.route("/orders", methods=["GET"])
-def get_orders():
-    orders = Order.query.all()
+@jwt_required()  # Requires a valid JWT token
+def get_user_orders():
+    current_user_id = get_jwt_identity()
+
+    # Fetch orders for the authenticated user
+    orders = Order.query.filter_by(user_id=current_user_id).all()
+
     orders_data = [
         {
             "id": order.id,
@@ -129,7 +134,8 @@ def get_orders():
         }
         for order in orders
     ]
-    return jsonify(orders_data)
+
+    return jsonify(orders_data), 200
 
 
 # Route to create a new order
@@ -185,11 +191,14 @@ def create_order():
     )
 
 
-# Route to get all products
 @app.route("/api/products", methods=["GET"])
+@jwt_required()  # Requires a valid JWT token
 @cross_origin()
-def get_all_products():
-    products = Product.query.all()
+def get_user_products():
+    current_user_id = get_jwt_identity()
+
+    # Retrieve all products for the authenticated user (current_user)
+    products = Product.query.filter_by(user_id=current_user_id).all()
 
     products_data = [
         {
@@ -203,7 +212,7 @@ def get_all_products():
         for product in products
     ]
 
-    return jsonify(products_data)
+    return jsonify({"products": products_data}), 200
 
 
 # Route to authenticate and get JWT token
@@ -223,57 +232,6 @@ def login():
         return jsonify(access_token=access_token), 200
     else:
         return jsonify({"error": "Invalid credentials"}), 401
-
-
-from flask_login import current_user
-
-
-@app.route("/api/products/user", methods=["GET"])
-@jwt_required()
-def get_user_products():
-    # Retrieve all products for the authenticated user (current_user)
-    products = Product.query.filter_by(user_id=current_user.id).all()
-
-    # Convert products to a JSON response
-    products_data = [
-        {
-            "id": product.id,
-            "name": product.name,
-            "description": product.description,
-            "price": product.price,
-            "quantity_in_stock": product.quantity_in_stock,
-            "user_id": product.user_id,
-        }
-        for product in products
-    ]
-
-    return jsonify({"products": products_data}), 200
-
-
-# Route to get products per order for the authenticated user
-@app.route("/api/products/order", methods=["GET"])
-@jwt_required()  # Requires a valid JWT token
-def get_user_order_products():
-    current_user_id = get_jwt_identity()
-
-    # Fetch orders for the authenticated user
-    orders = Order.query.filter_by(user_id=current_user_id).all()
-
-    products_data = []
-
-    for order in orders:
-        for item in order.items:
-            product_data = {
-                "id": item.product.id,
-                "name": item.product.name,
-                "description": item.product.description,
-                "price": item.product.price,
-                "quantity_in_stock": item.product.quantity_in_stock,
-                "user_id": item.product.user_id,
-            }
-            products_data.append(product_data)
-
-    return jsonify(products_data), 200
 
 
 @app.route("/api/register", methods=["POST"])

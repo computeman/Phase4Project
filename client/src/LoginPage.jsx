@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import SignUp from "./SignUp"; // Import the SignUp component
+import SignUp from "./SignUp";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
