@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-<<<<<<< HEAD
-import SignUp from "./SignUp";
-=======
 import './Loginpage.css';
->>>>>>> origin/main
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
