@@ -42,7 +42,7 @@ const LoginPage = () => {
         onChange={(e) => setUsername(e.target.value)}
         required
       />
-      <span></span>
+     
       <label>Username</label>
     </div>
     <div className="txt_field">
