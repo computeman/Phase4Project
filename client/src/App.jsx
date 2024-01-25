@@ -1,20 +1,13 @@
-// App.js
-
 import React, { useState } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Link,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Link, Navigate } from "react-router-dom";
+import SignUp from "./SignUp"; // Import your SignUp component
 import ProductsPage from "./ProductsPage";
 import OrdersPage from "./OrdersPage";
 import OrderFormPage from "./OrderFormPage";
 import EditProductPage from "./EditProductPage";
 import HomePage from "./HomePage";
 import LoginPage from "./LoginPage";
-
+import './App.css';
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -54,20 +47,25 @@ function App() {
 
   return (
     <Router>
-      <nav>
-        {isLoggedIn ? (
-          <button onClick={handleLogout}>Logout</button>
-        ) : (
-          <Link to="/login">Login</Link>
-        )}
-        <Link to="/products">Products</Link>
-        <Link to="/orders">Orders</Link>
-        <Link to="/order-form">Order Form</Link>
-        <Link to="/edit-product/:productId">Product Update</Link>
-      </nav>
+      <header>
+        <h2 className="logo">Shopify 254</h2>
+        <nav className="navigation">
+          {isLoggedIn ? (
+            <button onClick={handleLogout}>Logout</button>
+          ) : (
+            <Link to="/login">Login</Link>
+          )}
+          <Link to="/signup">Sign Up</Link> {/* Include SignUp link */}
+          <Link to="/products">Products</Link>
+          <Link to="/orders">Orders</Link>
+          <Link to="/order-form">Order Form</Link>
+          <Link to="/edit-product/:productId">Product Update</Link>
+        </nav>
+      </header>
 
       <Routes>
         <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+        <Route path="/signup" element={<SignUp />} /> {/* SignUp route */}
         <Route
           path="/products"
           element={<PrivateRoute element={<ProductsPage />} />}

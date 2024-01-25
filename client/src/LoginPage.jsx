@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 import SignUp from "./SignUp";
+=======
+import './Loginpage.css';
+>>>>>>> origin/main
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showSignUpForm, setShowSignUpForm] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -32,34 +35,37 @@ const LoginPage = () => {
     }
   };
 
-  const toggleSignUpForm = () => {
-    setShowSignUpForm((prev) => !prev);
-  };
-
-  return (
-    <div>
-      <h2>Login</h2>
-      <label>Username: </label>
+  return ( 
+  <div className="center">
+  <h1>Login</h1>
+  <form method="post" onSubmit={handleLogin}>
+    <div className="txt_field">
       <input
         type="text"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
+        required
       />
-      <br />
-      <label>Password: </label>
+     
+      <label>Username</label>
+    </div>
+    <div className="txt_field">
       <input
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        required
       />
-      <br />
-      <button onClick={handleLogin}>Login</button>
-      <br />
-      <button onClick={toggleSignUpForm}>Sign Up</button>
-
-      {showSignUpForm && <SignUp />}
+      <span></span>
+      <label>Password</label>
     </div>
-  );
+   
+    <input type="submit" value="Login" />
+    
+   
+  </form>
+</div>
+);
 };
 
 export default LoginPage;
