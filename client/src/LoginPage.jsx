@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import SignUp from "./SignUp"; // Import the SignUp component
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showSignUpForm, setShowSignUpForm] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -30,6 +32,10 @@ const LoginPage = () => {
     }
   };
 
+  const toggleSignUpForm = () => {
+    setShowSignUpForm((prev) => !prev);
+  };
+
   return (
     <div>
       <h2>Login</h2>
@@ -48,6 +54,10 @@ const LoginPage = () => {
       />
       <br />
       <button onClick={handleLogin}>Login</button>
+      <br />
+      <button onClick={toggleSignUpForm}>Sign Up</button>
+
+      {showSignUpForm && <SignUp />}
     </div>
   );
 };
