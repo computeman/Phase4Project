@@ -144,16 +144,17 @@ def get_user_orders():
 
 @app.route("/orders", methods=["POST"])
 @jwt_required()  # Requires a valid JWT token
-def create_order():
+def create_order_items():
     current_user_id = get_jwt_identity()
 
     data = request.get_json()
 
     user_id = data.get("user_id")
+    product_id = data.get("product_id")
     status = data.get("status")
-    items = data.get("items")  # Assuming it's a list of items
+    quantity = data.get("quantity")
 
-    if not user_id or not status or not items:
+    if not user_id or not product_id or not status or not quantity:
         return jsonify({"error": "Incomplete data"}), 400
 
     # Check if the user making the request is the same as the one specified in the data
@@ -165,38 +166,34 @@ def create_order():
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    # Create the order
-    new_order = Order(user_id=user_id, status=status)
+    # Check if the product exists
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"error": f"Product with id {product_id} not found"}), 404
 
-    # Create order items
-    for item_data in items:
-        product_id = item_data.get("product_id")
-        quantity = item_data.get("quantity")
+    # Calculate total_price
+    total_price = product.price * quantity
 
-        # Retrieve the product
-        product = Product.query.get(product_id)
-        if not product:
-            return jsonify({"error": f"Product with id {product_id} not found"}), 404
+    # Create the new order item with total_price
+    new_order_item = OrderItem(
+        user_id=user_id,
+        product_id=product_id,
+        status=status,
+        quantity=quantity,
+        total_price=total_price,
+    )
 
-        # Calculate total_price
-        total_price = product.price * quantity
-
-        # Create the new item with total_price
-        new_item = OrderItem(
-            product_id=product_id, quantity=quantity, total_price=total_price
-        )
-
-        new_order.items.append(new_item)
-
-    # Calculate the total order price
-    new_order.total_price = sum(item.total_price for item in new_order.items)
-
-    # Add the order to the database
-    db.session.add(new_order)
+    # Add the order item to the database
+    db.session.add(new_order_item)
     db.session.commit()
 
     return (
-        jsonify({"message": "Order created successfully", "order_id": new_order.id}),
+        jsonify(
+            {
+                "message": "Order item created successfully",
+                "order_item_id": new_order_item.id,
+            }
+        ),
         201,
     )
 

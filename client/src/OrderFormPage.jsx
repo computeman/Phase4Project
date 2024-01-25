@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 
 const OrderFormPage = () => {
   const [products, setProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState([]);
-  const [orderStatus, setOrderStatus] = useState("processing");
+  const [selectedProducts, setSelectedProducts] = useState({});
   const [orderMessage, setOrderMessage] = useState(null);
   const [error, setError] = useState(null);
 
@@ -29,19 +28,27 @@ const OrderFormPage = () => {
         }
         return response.json();
       })
-      .then((data) => setProducts(data.products))
+      .then((data) => {
+        const selectedProductsInit = {};
+        data.products.forEach((product) => {
+          selectedProductsInit[product.id] = {
+            quantity: 1,
+          };
+        });
+        setSelectedProducts(selectedProductsInit);
+        setProducts(data.products);
+      })
       .catch((error) => {
         console.error("Error fetching products:", error);
         setError("Error fetching products. Please try again.");
       });
   }, []);
 
-  const handleProductSelect = (productId) => {
-    setSelectedProducts((prevSelected) =>
-      prevSelected.includes(productId)
-        ? prevSelected.filter((id) => id !== productId)
-        : [...prevSelected, productId]
-    );
+  const handleProductSelect = (productId, quantity) => {
+    setSelectedProducts((prevSelected) => ({
+      ...prevSelected,
+      [productId]: { quantity },
+    }));
   };
 
   const handleSubmitOrder = () => {
@@ -51,15 +58,14 @@ const OrderFormPage = () => {
     if (token) {
       const userId = JSON.parse(localStorage.getItem("user")).id;
 
-      // Submit order to the API
-      const orderData = {
-        user_id: userId,
-        status: orderStatus,
-        items: selectedProducts.map((productId) => ({
-          product_id: productId,
-          quantity: 1,
-        })),
-      };
+      // Submit order items to the API
+      const orderItemsData = Object.entries(selectedProducts).map(
+        ([productId, { quantity }]) => ({
+          user_id: userId,
+          product_id: parseInt(productId),
+          quantity: parseInt(quantity),
+        })
+      );
 
       fetch("http://localhost:5000/orders", {
         method: "POST",
@@ -67,21 +73,21 @@ const OrderFormPage = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(orderData),
+        body: JSON.stringify(orderItemsData),
       })
         .then((response) => response.json())
         .then((data) => {
           setOrderMessage({
             type: "success",
-            text: "Order submitted successfully",
+            text: "Order items submitted successfully",
           });
         })
         .catch((error) => {
           setOrderMessage({
             type: "error",
-            text: "Error submitting order",
+            text: "Error submitting order items",
           });
-          console.error("Error submitting order:", error);
+          console.error("Error submitting order items:", error);
         });
     } else {
       console.error("Token is missing");
@@ -101,31 +107,17 @@ const OrderFormPage = () => {
               {products.map((product) => (
                 <li key={product.id}>
                   {product.name}{" "}
-                  <button
-                    onClick={() => handleProductSelect(product.id)}
-                    style={{
-                      backgroundColor: selectedProducts.includes(product.id)
-                        ? "orange"
-                        : "inherit",
-                    }}
-                  >
-                    {selectedProducts.includes(product.id)
-                      ? "Added to Order"
-                      : "Add to Order"}
-                  </button>
+                  <input
+                    label="Quantity"
+                    type="number"
+                    value={selectedProducts[product.id]?.quantity || 1}
+                    onChange={(e) =>
+                      handleProductSelect(product.id, e.target.value)
+                    }
+                  />
                 </li>
               ))}
             </ul>
-          </div>
-          <div>
-            <label>Order Status:</label>
-            <select
-              value={orderStatus}
-              onChange={(e) => setOrderStatus(e.target.value)}
-            >
-              <option value="processing">Processing</option>
-              <option value="completed">Completed</option>
-            </select>
           </div>
           <button onClick={handleSubmitOrder}>Submit Order</button>
         </>
