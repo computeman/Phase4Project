@@ -48,7 +48,8 @@ const ProductsPage = () => {
         <ul>
           {products.map((product) => (
             <li key={product.id}>
-              {product.name} - {product.description} - ${product.price}{" "}
+              {product.name} - {product.description} - ${product.price} - Cost:
+              ${product.costofpurchase}{" "}
               <Link to={`/edit-product/${product.id}`}>Edit</Link>{" "}
               <button onClick={() => handleProductClick(product.id)}>
                 Order

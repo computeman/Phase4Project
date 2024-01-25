@@ -1,13 +1,7 @@
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import (
-    db,
-    User,
-    Product,
-    Order,
-    OrderItem,
-)  # Replace 'your_flask_app' with your actual Flask app instance
+from models import db, User, Product, Order, OrderItem
 
 # Set up the database connection
 engine = create_engine("sqlite:///instance/app.db")
@@ -31,6 +25,7 @@ try:
             "description": f"Description {i}",
             "price": 19.99 + i,
             "quantity_in_stock": 50 + i,
+            "costofpurchase": 15.99 + i,  # Add costofpurchase
         }
         for i in range(1, 11)
     ]

@@ -7,8 +7,16 @@ const EditProductPage = () => {
   const [updatedProduct, setUpdatedProduct] = useState({});
 
   useEffect(() => {
+    // Update product details using the API
+    const token = localStorage.getItem("access_token");
     // Fetch product details from the API
-    fetch(`http://localhost:5000/api/products`)
+    fetch(`http://localhost:5000/api/products`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         setProduct(data);
@@ -26,10 +34,13 @@ const EditProductPage = () => {
 
   const handleUpdateProduct = () => {
     // Update product details using the API
+    const token = localStorage.getItem("access_token");
+
     fetch(`http://localhost:5000/api/products/${productId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(updatedProduct),
     })
@@ -68,6 +79,15 @@ const EditProductPage = () => {
           type="text"
           name="price"
           value={updatedProduct.price || ""}
+          onChange={handleInputChange}
+        />
+      </div>
+      <div>
+        <label>Cost of Purchase:</label>
+        <input
+          type="text"
+          name="costofpurchase"
+          value={updatedProduct.costofpurchase || ""}
           onChange={handleInputChange}
         />
       </div>
