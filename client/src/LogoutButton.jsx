@@ -1,15 +1,16 @@
-// LogoutButton.js
-
 import React from "react";
-import { useAuth } from "./AuthContext";
 
 const LogoutButton = () => {
-  const { dispatch } = useAuth();
-
   const handleLogout = () => {
     // Perform logout logic (e.g., clear local storage, make API request, etc.)
-    // After logout, update the state using dispatch
-    dispatch({ type: "LOGOUT" });
+    // For example, clearing a token from localStorage
+    localStorage.removeItem("access_token");
+
+    // You might want to redirect to the login page or perform other actions
+    // depending on your application's requirements
+
+    // For this example, let's just reload the page
+    window.location.reload();
   };
 
   return <button onClick={handleLogout}>Logout</button>;

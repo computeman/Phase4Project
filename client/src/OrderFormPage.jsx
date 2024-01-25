@@ -1,11 +1,10 @@
-// OrderFormPage.js
-
 import React, { useState, useEffect } from "react";
 
 const OrderFormPage = () => {
   const [products, setProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [orderStatus, setOrderStatus] = useState("processing");
+  const [orderMessage, setOrderMessage] = useState(null);
 
   useEffect(() => {
     // Fetch products from the API
@@ -16,7 +15,18 @@ const OrderFormPage = () => {
   }, []);
 
   const handleProductSelect = (productId) => {
-    setSelectedProducts((prevSelected) => [...prevSelected, productId]);
+    // Check if the product is already selected
+    const isSelected = selectedProducts.includes(productId);
+
+    if (isSelected) {
+      // If selected, remove it from the list
+      setSelectedProducts((prevSelected) =>
+        prevSelected.filter((id) => id !== productId)
+      );
+    } else {
+      // If not selected, add it to the list
+      setSelectedProducts((prevSelected) => [...prevSelected, productId]);
+    }
   };
 
   const handleSubmitOrder = () => {
@@ -39,10 +49,19 @@ const OrderFormPage = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Order submitted successfully", data);
+        setOrderMessage({
+          type: "success",
+          text: "Order submitted successfully",
+        });
         // Add any further logic as needed
       })
-      .catch((error) => console.error("Error submitting order:", error));
+      .catch((error) => {
+        setOrderMessage({
+          type: "error",
+          text: "Error submitting order",
+        });
+        console.error("Error submitting order:", error);
+      });
   };
 
   return (
@@ -54,8 +73,17 @@ const OrderFormPage = () => {
           {products.map((product) => (
             <li key={product.id}>
               {product.name}{" "}
-              <button onClick={() => handleProductSelect(product.id)}>
-                Add to Order
+              <button
+                onClick={() => handleProductSelect(product.id)}
+                style={{
+                  backgroundColor: selectedProducts.includes(product.id)
+                    ? "orange"
+                    : "inherit",
+                }}
+              >
+                {selectedProducts.includes(product.id)
+                  ? "Added to Order"
+                  : "Add to Order"}
               </button>
             </li>
           ))}
@@ -72,6 +100,16 @@ const OrderFormPage = () => {
         </select>
       </div>
       <button onClick={handleSubmitOrder}>Submit Order</button>
+      {orderMessage && (
+        <div
+          style={{
+            marginTop: "10px",
+            color: orderMessage.type === "error" ? "red" : "green",
+          }}
+        >
+          {orderMessage.text}
+        </div>
+      )}
     </div>
   );
 };
