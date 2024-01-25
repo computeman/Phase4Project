@@ -1,4 +1,4 @@
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from flask import Flask, request, jsonify, session
 from flask_jwt_extended import (
     JWTManager,
@@ -29,6 +29,7 @@ db.init_app(app)
 
 
 @app.route("/api/products", methods=["POST"])
+@cross_origin()
 def create_products():
     try:
         if isinstance(request.json, list):
@@ -61,6 +62,7 @@ def create_products():
 
 
 @app.route("/api/products/<int:product_id>", methods=["PUT"])
+@cross_origin()
 def update_product(product_id):
     try:
         product = Product.query.get_or_404(product_id)
@@ -185,6 +187,7 @@ def create_order():
 
 # Route to get all products
 @app.route("/api/products", methods=["GET"])
+@cross_origin()
 def get_all_products():
     products = Product.query.all()
 

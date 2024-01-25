@@ -1,15 +1,14 @@
-// EditProductPage.js
-
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
-const EditProductPage = ({ match }) => {
-  const productId = match.params.productId;
+const EditProductPage = () => {
+  const { productId } = useParams();
   const [product, setProduct] = useState({});
   const [updatedProduct, setUpdatedProduct] = useState({});
 
   useEffect(() => {
     // Fetch product details from the API
-    fetch(`/api/products/${productId}`)
+    fetch(`http://localhost:5000/api/products`)
       .then((response) => response.json())
       .then((data) => {
         setProduct(data);
@@ -27,7 +26,7 @@ const EditProductPage = ({ match }) => {
 
   const handleUpdateProduct = () => {
     // Update product details using the API
-    fetch(`/api/products/${productId}`, {
+    fetch(`http://localhost:5000/api/products/${productId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -50,7 +49,7 @@ const EditProductPage = ({ match }) => {
         <input
           type="text"
           name="name"
-          value={updatedProduct.name}
+          value={updatedProduct.name || ""}
           onChange={handleInputChange}
         />
       </div>
@@ -59,7 +58,7 @@ const EditProductPage = ({ match }) => {
         <input
           type="text"
           name="description"
-          value={updatedProduct.description}
+          value={updatedProduct.description || ""}
           onChange={handleInputChange}
         />
       </div>
@@ -68,7 +67,7 @@ const EditProductPage = ({ match }) => {
         <input
           type="text"
           name="price"
-          value={updatedProduct.price}
+          value={updatedProduct.price || ""}
           onChange={handleInputChange}
         />
       </div>
@@ -77,7 +76,7 @@ const EditProductPage = ({ match }) => {
         <input
           type="text"
           name="quantity_in_stock"
-          value={updatedProduct.quantity_in_stock}
+          value={updatedProduct.quantity_in_stock || ""}
           onChange={handleInputChange}
         />
       </div>

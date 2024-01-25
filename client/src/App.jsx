@@ -63,6 +63,7 @@ function App() {
         <Link to="/products">Products</Link>
         <Link to="/orders">Orders</Link>
         <Link to="/order-form">Order Form</Link>
+        <Link to="/edit-product/:productId">Product Update</Link>
       </nav>
 
       <Routes>
