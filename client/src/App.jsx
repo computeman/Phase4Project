@@ -14,6 +14,7 @@ import OrderFormPage from "./OrderFormPage";
 import EditProductPage from "./EditProductPage";
 import HomePage from "./HomePage";
 import LoginPage from "./LoginPage";
+import './App.css'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -54,7 +55,9 @@ function App() {
 
   return (
     <Router>
-      <nav>
+      <header>
+      <h2 className="logo">Shopify 254</h2>
+      <nav className="navigation">
         {isLoggedIn ? (
           <button onClick={handleLogout}>Logout</button>
         ) : (
@@ -65,6 +68,7 @@ function App() {
         <Link to="/order-form">Order Form</Link>
         <Link to="/edit-product/:productId">Product Update</Link>
       </nav>
+      </header>
 
       <Routes>
         <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
