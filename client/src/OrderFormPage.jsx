@@ -9,7 +9,7 @@ const OrderFormPage = () => {
 
   useEffect(() => {
     // Fetch products from the API
-    fetch("/api/products")
+    fetch("http://localhost:5000/api/products")
       .then((response) => response.json())
       .then((data) => setProducts(data))
       .catch((error) => console.error("Error fetching products:", error));
@@ -30,7 +30,7 @@ const OrderFormPage = () => {
       })),
     };
 
-    fetch("/orders", {
+    fetch("http://localhost:5000/orders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
