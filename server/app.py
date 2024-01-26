@@ -26,7 +26,7 @@ app.config["JWT_SECRET_KEY"] = "your_jwt_secret_key"  # Change this to a secure 
 jwt = JWTManager(app)
 Session(app)
 migrate = Migrate(app, db)
-CORS(app, origins="http://localhost:5000", supports_credentials=True)
+CORS(app)
 
 db.init_app(app)
 
@@ -146,39 +146,27 @@ def get_user_orders():
     return jsonify(orders_data), 200
 
 
+# Route to create a new order
 @app.route("/orders", methods=["POST"])
-@jwt_required()  # Requires a valid JWT token
-@cross_origin()
-def create_order_items():
-    current_user_id = get_jwt_identity()
-
+def create_order():
     data = request.get_json()
 
     user_id = data.get("user_id")
     status = data.get("status")
-    items = data.get("items")  # List of items with product_id and quantity
+    items = data.get("items")  # Assuming it's a list of items
 
     if not user_id or not status or not items:
         return jsonify({"error": "Incomplete data"}), 400
-
-    # Check if the user making the request is the same as the one specified in the data
-    if current_user_id != user_id:
-        return jsonify({"error": "Unauthorized"}), 401
 
     # Check if the user exists
     user = User.query.get(user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    # Find the highest existing order ID
-    max_order_id = db.session.query(func.max(Order.id)).scalar()
-
-    # Increment the order ID
-    new_order_id = max_order_id + 1 if max_order_id is not None else 1
-
     # Create the order
-    new_order = Order(id=new_order_id, user_id=user_id, status=status)
+    new_order = Order(user_id=user_id, status=status)
 
+    # Create order items
     for item_data in items:
         product_id = item_data.get("product_id")
         quantity = item_data.get("quantity")
@@ -195,18 +183,14 @@ def create_order_items():
         total_price = product.price * quantity
 
         # Create the new order item with total_price
-        new_order_item = OrderItem(
-            order_id=new_order_id,  # Use order ID instead of user ID
+        new_item = OrderItem(
             product_id=product_id,
             quantity=quantity,
             total_price=total_price,
         )
 
         # Add the order item to the order
-        new_order.items.append(new_order_item)
-
-    # Calculate the total order price
-    new_order.total_price = sum(item.total_price for item in new_order.items)
+        new_order.items.append(new_item)
 
     # Add the order to the database
     db.session.add(new_order)
