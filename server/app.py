@@ -14,6 +14,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from flask_session import Session
 from models import db, User, Product, Order, OrderItem
+from sqlalchemy import func
+
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
@@ -24,7 +26,8 @@ app.config["JWT_SECRET_KEY"] = "your_jwt_secret_key"  # Change this to a secure 
 jwt = JWTManager(app)
 Session(app)
 migrate = Migrate(app, db)
-CORS(app)
+CORS(app, origins="http://localhost:5000", supports_credentials=True)
+
 db.init_app(app)
 
 
@@ -116,6 +119,7 @@ def calculate_contribution_analysis():
 
 # Route to get orders for the currently logged-in user
 @app.route("/orders", methods=["GET"])
+@cross_origin()
 @jwt_required()  # Requires a valid JWT token
 def get_user_orders():
     current_user_id = get_jwt_identity()
@@ -144,17 +148,17 @@ def get_user_orders():
 
 @app.route("/orders", methods=["POST"])
 @jwt_required()  # Requires a valid JWT token
+@cross_origin()
 def create_order_items():
     current_user_id = get_jwt_identity()
 
     data = request.get_json()
 
     user_id = data.get("user_id")
-    product_id = data.get("product_id")
     status = data.get("status")
-    quantity = data.get("quantity")
+    items = data.get("items")  # List of items with product_id and quantity
 
-    if not user_id or not product_id or not status or not quantity:
+    if not user_id or not status or not items:
         return jsonify({"error": "Incomplete data"}), 400
 
     # Check if the user making the request is the same as the one specified in the data
@@ -166,34 +170,50 @@ def create_order_items():
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    # Check if the product exists
-    product = Product.query.get(product_id)
-    if not product:
-        return jsonify({"error": f"Product with id {product_id} not found"}), 404
+    # Find the highest existing order ID
+    max_order_id = db.session.query(func.max(Order.id)).scalar()
 
-    # Calculate total_price
-    total_price = product.price * quantity
+    # Increment the order ID
+    new_order_id = max_order_id + 1 if max_order_id is not None else 1
 
-    # Create the new order item with total_price
-    new_order_item = OrderItem(
-        user_id=user_id,
-        product_id=product_id,
-        status=status,
-        quantity=quantity,
-        total_price=total_price,
-    )
+    # Create the order
+    new_order = Order(id=new_order_id, user_id=user_id, status=status)
 
-    # Add the order item to the database
-    db.session.add(new_order_item)
+    for item_data in items:
+        product_id = item_data.get("product_id")
+        quantity = item_data.get("quantity")
+
+        # Check if the product belongs to the user
+        product = Product.query.filter_by(id=product_id, user_id=user_id).first()
+        if not product:
+            return (
+                jsonify({"error": "Product not found or does not belong to the user"}),
+                404,
+            )
+
+        # Calculate total_price
+        total_price = product.price * quantity
+
+        # Create the new order item with total_price
+        new_order_item = OrderItem(
+            order_id=new_order_id,  # Use order ID instead of user ID
+            product_id=product_id,
+            quantity=quantity,
+            total_price=total_price,
+        )
+
+        # Add the order item to the order
+        new_order.items.append(new_order_item)
+
+    # Calculate the total order price
+    new_order.total_price = sum(item.total_price for item in new_order.items)
+
+    # Add the order to the database
+    db.session.add(new_order)
     db.session.commit()
 
     return (
-        jsonify(
-            {
-                "message": "Order item created successfully",
-                "order_item_id": new_order_item.id,
-            }
-        ),
+        jsonify({"message": "Order created successfully", "order_id": new_order.id}),
         201,
     )
 
@@ -236,7 +256,7 @@ def login():
         # Create JWT token and store user ID in the session
         access_token = create_access_token(identity=user.id)
         session["user_id"] = user.id
-        return jsonify(access_token=access_token), 200
+        return jsonify(access_token=access_token, user_id=user.id), 200
     else:
         return jsonify({"error": "Invalid credentials"}), 401
 
@@ -261,6 +281,81 @@ def register_user():
         db.session.commit()
 
         return jsonify({"message": "User registered successfully"}), 201
+
+
+# Route 1: Calculate Total Profit for a User
+@app.route("/user_profit/<int:user_id>", methods=["GET"])
+def user_profit(user_id):
+    user = User.query.get_or_404(user_id)
+    total_profit = (
+        db.session.query(
+            func.sum(Product.price - Product.costofpurchase).label("total_profit")
+        )
+        .filter(Product.user_id == user_id)
+        .scalar()
+    )
+    return jsonify({"user_id": user.id, "total_profit": total_profit})
+
+
+# Route 2: Get the Most Profitable Product for a User
+@app.route("/most_profitable_product/<int:user_id>", methods=["GET"])
+def most_profitable_product(user_id):
+    user = User.query.get_or_404(user_id)
+    most_profitable_product = (
+        db.session.query(
+            Product,
+            func.sum(
+                OrderItem.quantity * (Product.price - Product.costofpurchase)
+            ).label("profit"),
+        )
+        .join(OrderItem, Product.id == OrderItem.product_id)
+        .join(Order, Order.id == OrderItem.order_id)
+        .filter(Order.user_id == user_id)
+        .group_by(Product.id)
+        .order_by(
+            func.sum(
+                OrderItem.quantity * (Product.price - Product.costofpurchase)
+            ).desc()
+        )
+        .first()
+    )
+
+    return jsonify(
+        {
+            "user_id": user.id,
+            "most_profitable_product": {
+                "product_id": most_profitable_product[0].id,
+                "product_name": most_profitable_product[0].name,
+                "profit": most_profitable_product.profit,
+            },
+        }
+    )
+
+
+# Route 3: Get Order History for a User
+@app.route("/order_history/<int:user_id>", methods=["GET"])
+def order_history(user_id):
+    user = User.query.get_or_404(user_id)
+    orders = Order.query.filter_by(user_id=user_id).all()
+
+    order_history = []
+    for order in orders:
+        order_details = {"order_id": order.id, "status": order.status, "items": []}
+
+        for item in order.items:
+            product = item.product
+            order_details["items"].append(
+                {
+                    "product_id": product.id,
+                    "product_name": product.name,
+                    "quantity": item.quantity,
+                    "total_price": item.total_price,
+                }
+            )
+
+        order_history.append(order_details)
+
+    return jsonify({"user_id": user.id, "order_history": order_history})
 
 
 if __name__ == "__main__":

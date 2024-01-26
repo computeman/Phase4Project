@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 
 const OrderFormPage = () => {
+  // State variables to manage products, selected products, order message, and error
   const [products, setProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState({});
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const [orderMessage, setOrderMessage] = useState(null);
   const [error, setError] = useState(null);
 
+  // Fetch products from the API when the component mounts
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
@@ -29,13 +31,6 @@ const OrderFormPage = () => {
         return response.json();
       })
       .then((data) => {
-        const selectedProductsInit = {};
-        data.products.forEach((product) => {
-          selectedProductsInit[product.id] = {
-            quantity: 1,
-          };
-        });
-        setSelectedProducts(selectedProductsInit);
         setProducts(data.products);
       })
       .catch((error) => {
@@ -44,34 +39,60 @@ const OrderFormPage = () => {
       });
   }, []);
 
+  // Function to handle product selection
   const handleProductSelect = (productId, quantity) => {
-    setSelectedProducts((prevSelected) => ({
-      ...prevSelected,
-      [productId]: { quantity },
-    }));
+    const product = products.find((product) => product.id === productId);
+
+    if (product) {
+      const existingProductIndex = selectedProducts.findIndex(
+        (selectedProduct) => selectedProduct.id === productId
+      );
+
+      if (existingProductIndex !== -1) {
+        // Remove the product if it is already selected
+        setSelectedProducts((prevSelected) =>
+          prevSelected.filter(
+            (selectedProduct) => selectedProduct.id !== productId
+          )
+        );
+      } else {
+        // Add the product to the selected list with quantity
+        setSelectedProducts((prevSelected) => [
+          ...prevSelected,
+          { id: product.id, quantity: parseInt(quantity) || 1 },
+        ]);
+      }
+    }
   };
 
+  // Function to handle order submission
   const handleSubmitOrder = () => {
     const token = localStorage.getItem("access_token");
+    const userId = localStorage.getItem("user_id");
 
     // Ensure that the token exists
     if (token) {
-      const userId = JSON.parse(localStorage.getItem("user")).id;
+      // Check if userId is present
+      if (!userId) {
+        console.error("User ID is missing");
+        return;
+      }
 
       // Submit order items to the API
-      const orderItemsData = Object.entries(selectedProducts).map(
-        ([productId, { quantity }]) => ({
-          user_id: userId,
-          product_id: parseInt(productId),
+      const orderItemsData = {
+        user_id: userId, // Use userId from the state variable
+        status: "your_status_here", // Replace with your desired order status
+        items: selectedProducts.map(({ id, quantity }) => ({
+          product_id: id,
           quantity: parseInt(quantity),
-        })
-      );
+        })),
+      };
 
       fetch("http://localhost:5000/orders", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(orderItemsData),
       })
@@ -94,6 +115,7 @@ const OrderFormPage = () => {
     }
   };
 
+  // JSX for rendering the component
   return (
     <div>
       <h2>Order Form</h2>
@@ -110,11 +132,38 @@ const OrderFormPage = () => {
                   <input
                     label="Quantity"
                     type="number"
-                    value={selectedProducts[product.id]?.quantity || 1}
+                    value={
+                      selectedProducts.find(
+                        (selectedProduct) => selectedProduct.id === product.id
+                      )?.quantity || 1
+                    }
                     onChange={(e) =>
                       handleProductSelect(product.id, e.target.value)
                     }
                   />
+                  <button
+                    onClick={() =>
+                      handleProductSelect(
+                        product.id,
+                        selectedProducts.find(
+                          (selectedProduct) => selectedProduct.id === product.id
+                        )?.quantity
+                      )
+                    }
+                    style={{
+                      backgroundColor: selectedProducts.some(
+                        (selectedProduct) => selectedProduct.id === product.id
+                      )
+                        ? "orange"
+                        : "inherit",
+                    }}
+                  >
+                    {selectedProducts.some(
+                      (selectedProduct) => selectedProduct.id === product.id
+                    )
+                      ? "Added to Order"
+                      : "Add to Order"}
+                  </button>
                 </li>
               ))}
             </ul>

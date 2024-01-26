@@ -24,6 +24,7 @@ const LoginPage = () => {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("user_id", data.user_id);
         // Navigate to the products page or any other authenticated route
         navigate("/products");
       } else {
