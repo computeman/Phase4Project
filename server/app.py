@@ -18,6 +18,7 @@ from sqlalchemy import func
 
 
 app = Flask(__name__)
+CORS(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SESSION_TYPE"] = "filesystem"  # Use filesystem for session storage
@@ -26,7 +27,7 @@ app.config["JWT_SECRET_KEY"] = "your_jwt_secret_key"  # Change this to a secure 
 jwt = JWTManager(app)
 Session(app)
 migrate = Migrate(app, db)
-CORS(app)
+# CORS(app)
 
 db.init_app(app)
 
@@ -119,7 +120,7 @@ def calculate_contribution_analysis():
 
 # Route to get orders for the currently logged-in user
 @app.route("/orders", methods=["GET"])
-@cross_origin()
+@cross_origin(origin="*")
 @jwt_required()  # Requires a valid JWT token
 def get_user_orders():
     current_user_id = get_jwt_identity()
@@ -340,6 +341,32 @@ def order_history(user_id):
         order_history.append(order_details)
 
     return jsonify({"user_id": user.id, "order_history": order_history})
+
+
+# Delete Order and related OrderItems
+@app.route("/api/orders/<int:order_id>", methods=["DELETE"])
+@jwt_required()
+def delete_order(order_id):
+    try:
+        # Find the order by ID
+        order = Order.query.get(order_id)
+
+        # Check if the order exists
+        if not order:
+            return jsonify({"message": "Order not found"}), 404
+
+        # Delete related OrderItems
+        order_items = OrderItem.query.filter_by(order_id=order.id).all()
+        for order_item in order_items:
+            db.session.delete(order_item)
+
+        # Delete the order
+        db.session.delete(order)
+        db.session.commit()
+
+        return jsonify({"message": "Order and related items deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"message": f"Error deleting order: {str(e)}"}), 500
 
 
 if __name__ == "__main__":
