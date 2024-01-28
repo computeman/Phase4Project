@@ -1,0 +1,79 @@
+/* orderFormPage.css */
+
+/* Container Styles */
+.order-form {
+  width: 400px; /* Adjusted max-width for a wider container */
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Title Styles */
+.order-form-title {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Error Message Styles */
+.error-message {
+  color: #d9534f;
+}
+
+/* Product Selection Styles */
+.product-selection {
+  margin-bottom: 20px;
+}
+
+/* Label Styles */
+.label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Product List Styles */
+.product-list {
+  list-style: none;
+  padding: 0;
+}
+
+/* Product Item Styles */
+.product-item {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+/* Quantity Input Styles */
+.quantity-input {
+  margin-left: 10px;
+  padding: 8px;
+  width: 60px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Submit Button Styles */
+.submit-button {
+  background-color: #5cb85c;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #4cae4c;
+}
+
+/* Order Message Styles */
+.order-message {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+}

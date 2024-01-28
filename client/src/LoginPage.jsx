@@ -24,7 +24,6 @@ const LoginPage = () => {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("access_token", data.access_token);
-        localStorage.setItem("user_id", data.user_id);
         // Navigate to the products page or any other authenticated route
         navigate("/products");
       } else {
@@ -41,27 +40,26 @@ const LoginPage = () => {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <label>Username: </label>
-      <input
-        type="text"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <br />
-      <label>Password: </label>
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <br />
-      <button onClick={handleLogin}>Login</button>
-      <br />
-      <button onClick={toggleSignUpForm}>Sign Up</button>
-
-      {showSignUpForm && <SignUp />}
+    <div className="center">
+      <h1>Login</h1>
+      <form onSubmit={handleLogin}>
+        <div className="txt_field">
+          
+          <input
+            type="text"
+            name="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <br /><label>Username </label>
+        </div>
+        <div className="txt_field">
+        
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /><br />
+        <label>Password </label>
+        </div>
+        <button className="button"onClick={handleLogin}>Login</button> <br />
+      </form>
     </div>
   );
 };

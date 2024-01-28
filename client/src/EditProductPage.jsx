@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import './editproductpage.css'
 
 const EditProductPage = () => {
   const { productId } = useParams();
@@ -53,54 +54,61 @@ const EditProductPage = () => {
   };
 
   return (
-    <div>
-      <h2>Edit Product</h2>
-      <div>
-        <label>Name:</label>
+    <div className="edit-product">
+      <h1>Edit Product</h1>
+      <div className="form-group">
+        <label className="label">Name:</label>
         <input
           type="text"
           name="name"
           value={updatedProduct.name || ""}
           onChange={handleInputChange}
+          className="input"
         />
       </div>
-      <div>
-        <label>Description:</label>
+      <div className="form-group">
+        <label className="label">Description:</label>
         <input
           type="text"
           name="description"
           value={updatedProduct.description || ""}
           onChange={handleInputChange}
+          className="input"
         />
       </div>
-      <div>
-        <label>Price:</label>
+      <div className="form-group">
+        <label className="label">Price:</label>
         <input
           type="text"
           name="price"
           value={updatedProduct.price || ""}
           onChange={handleInputChange}
+          className="input"
         />
       </div>
-      <div>
-        <label>Cost of Purchase:</label>
+      <div className="form-group">
+        <label className="label">Cost of Purchase:</label>
         <input
           type="text"
           name="costofpurchase"
           value={updatedProduct.costofpurchase || ""}
           onChange={handleInputChange}
+          className="input"
         />
       </div>
-      <div>
-        <label>Quantity in Stock:</label>
+      <div className="form-group">
+        <label className="label">Quantity in Stock:</label>
         <input
           type="text"
           name="quantity_in_stock"
           value={updatedProduct.quantity_in_stock || ""}
           onChange={handleInputChange}
+          className="input"
         />
       </div>
-      <button onClick={handleUpdateProduct}>Update Product</button>
+      <button onClick={handleUpdateProduct} className="update-button">
+        Update Product
+      </button>
     </div>
   );
 };

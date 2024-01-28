@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import './usermetrics.css'; // Import your CSS file
 
 const UserMetrics = () => {
   const [totalProfit, setTotalProfit] = useState(null);
@@ -48,17 +49,17 @@ const UserMetrics = () => {
   };
 
   return (
-    <div>
+    <div className="user-metrics"> {/* Apply the new class name here */}
       <h1>User Metrics</h1>
 
       {userId ? (
         <>
-          <div>
+          <div className="metric">
             <h2>Total Profit</h2>
             <p>{totalProfit !== null ? `$${totalProfit}` : "Loading..."}</p>
           </div>
 
-          <div>
+          <div className="metric">
             <h2>Most Profitable Product</h2>
             <p>
               {mostProfitableProduct !== null
@@ -67,7 +68,7 @@ const UserMetrics = () => {
             </p>
           </div>
 
-          <div>
+          <div className="metric">
             <h2>Order History</h2>
             <ul>
               {orderHistory.map((order) => (

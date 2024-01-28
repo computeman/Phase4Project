@@ -1,0 +1,44 @@
+/* ordersPage.css */
+
+/* Container Styles */
+.orders-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Title Styles */
+.page-title {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Error Message Styles */
+.error-message {
+  color: #d9534f;
+}
+
+/* Order List Styles */
+.order-list {
+  list-style: none;
+  padding: 0;
+}
+
+/* Order Item Styles */
+.order-item {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding: 15px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.order-item:hover {
+  background-color: rgb(215, 208, 208);
+  cursor: pointer;
+}

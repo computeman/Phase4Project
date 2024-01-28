@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import "./productsPage.css";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -40,18 +41,25 @@ const ProductsPage = () => {
   };
 
   return (
-    <div>
-      <h2>Products Page</h2>
+    <div className="page-container">
+      <h1 className="products-page">Products Page</h1>
       {error ? (
-        <p>{error}</p>
+        <p className="error-message">{error}</p>
       ) : (
-        <ul>
+        <ul className="product-list">
           {products.map((product) => (
-            <li key={product.id}>
-              {product.name} - {product.description} - ${product.price} - Cost:
-              ${product.costofpurchase}{" "}
-              <Link to={`/edit-product/${product.id}`}>Edit</Link>{" "}
-              <button onClick={() => handleProductClick(product.id)}>
+            <li key={product.id} className="product-item">
+              <span className="product-name">{product.name}</span> -{" "}
+              <span className="product-description">{product.description}</span> - $
+              <span className="product-price">{product.price}</span> - Cost: $
+              <span className="product-cost">{product.costofpurchase}</span>{" "}
+              <Link to={`/edit-product/${product.id}`} className="edit-link">
+                Edit
+              </Link>{" "}
+              <button
+                onClick={() => handleProductClick(product.id)}
+                className="order-button"
+              >
                 Order
               </button>
             </li>
@@ -59,8 +67,11 @@ const ProductsPage = () => {
         </ul>
       )}
       {selectedProduct && (
-        <div>
-          <p>Selected Product ID: {selectedProduct}</p>
+        <div className="selected-product">
+          <p>
+            Selected Product ID:{" "}
+            <span className="selected-product-id">{selectedProduct}</span>
+          </p>
         </div>
       )}
     </div>

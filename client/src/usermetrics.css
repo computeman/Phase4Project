@@ -1,0 +1,39 @@
+.user-metrics {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.metric h2 {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.metric p {
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  
+}
+
+.metric ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.metric li {
+  margin-bottom: 10px;
+}
+
+.user-metrics p {
+  font-size: 16px;
+}
