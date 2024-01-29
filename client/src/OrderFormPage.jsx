@@ -31,7 +31,7 @@ const OrderFormPage = () => {
         return response.json();
       })
       .then((data) => {
-        setProducts(data.products);
+        setProducts(data);
       })
       .catch((error) => {
         console.error("Error fetching products:", error);
@@ -88,7 +88,7 @@ const OrderFormPage = () => {
         })),
       };
 
-      fetch("http://localhost:5000/orders", {
+      fetch("http://localhost:5000/orders/new", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -130,8 +130,8 @@ const OrderFormPage = () => {
                 <li key={product.id}>
                   {product.name}{" "}
                   <input
-                    label="Quantity"
                     type="number"
+                    min="1"
                     value={
                       selectedProducts.find(
                         (selectedProduct) => selectedProduct.id === product.id

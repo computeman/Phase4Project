@@ -10,7 +10,7 @@ const ProductsPage = () => {
     const token = localStorage.getItem("access_token");
 
     // Fetch products from the API with the JWT token
-    fetch("http://localhost:5000/api/products", {
+    fetch("http://127.0.0.1:5000/api/products", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -28,7 +28,9 @@ const ProductsPage = () => {
         }
         return response.json();
       })
-      .then((data) => setProducts(data.products))
+      .then((data) => {
+        setProducts(data); // Assuming your API response has a 'products' property
+      })
       .catch((error) => {
         console.error("Error fetching products:", error);
         setError("Error fetching products. Please try again.");

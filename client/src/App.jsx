@@ -21,36 +21,6 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState(null);
 
-  useEffect(() => {
-    // Fetch user information after login
-    const fetchUserData = async () => {
-      const accessToken = localStorage.getItem("access_token");
-
-      if (accessToken) {
-        try {
-          const response = await fetch("http://localhost:5000/api/user", {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            setUserId(data.user_id);
-            setIsLoggedIn(true);
-          } else {
-            setIsLoggedIn(false);
-          }
-        } catch (error) {
-          console.error("Fetch user data error:", error);
-          setIsLoggedIn(false);
-        }
-      }
-    };
-
-    fetchUserData();
-  }, []);
-
   const handleLogin = async (username, password) => {
     try {
       const response = await fetch("http://localhost:5000/api/login", {
@@ -64,7 +34,7 @@ function App() {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("access_token", data.access_token);
-        setUserId(data.user_id);
+        localStorage.setUserId(data.user_id);
         setIsLoggedIn(true);
       } else {
         setIsLoggedIn(false);

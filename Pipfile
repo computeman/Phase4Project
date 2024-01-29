@@ -24,10 +24,14 @@ python-dateutil = "2.8.2"
 setuptools = "65.4.1"
 six = "1.16.0"
 sqlalchemy = "1.4.41"
-sqlalchemy-serializer = "1.4.1"
+sqlalchemy-serializer = "*"
 flask-jwt-extended = "*"
 flask-session = "*"
 flask-login = "*"
+flask-restful = "*"
+flask-marshmallow = "*"
+marshmallow-sqlalchemy = "*"
+flask-wtf = "*"
 
 [dev-packages]
 

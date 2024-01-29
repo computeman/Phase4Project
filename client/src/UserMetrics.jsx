@@ -8,12 +8,13 @@ const UserMetrics = () => {
 
   useEffect(() => {
     // Retrieve user_id from localStorage
-    const storedUserId = localStorage.getItem("user_id");
+    const storedUserId = localStorage.getItem("user_data");
     setUserId(storedUserId);
 
     if (storedUserId) {
       // Fetch user metrics if user_id is available
       fetchUserMetrics(storedUserId);
+      console.log(storedUserId);
     }
   }, []);
 

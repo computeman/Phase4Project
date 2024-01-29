@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 import SignUp from "./SignUp";
 import "./Loginpage.css";
-import "./Loginpage.css";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -23,8 +22,15 @@ const LoginPage = () => {
 
       if (response.ok) {
         const data = await response.json();
+
+        // Extract user ID from the response
+        const userId = data.user.id;
+
+        // Store user ID and user_data in local storage
         localStorage.setItem("access_token", data.access_token);
-        localStorage.setItem("user_id", data.user_id);
+        localStorage.setItem("user_id", userId);
+        localStorage.setItem("user_data", JSON.stringify(data.user));
+
         // Navigate to the products page or any other authenticated route
         navigate("/products");
       } else {

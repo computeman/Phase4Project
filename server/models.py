@@ -1,12 +1,8 @@
-from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey
-from sqlalchemy.orm import relationship, validates
+from flask_marshmallow import Marshmallow
 
 db = SQLAlchemy()
+ma = Marshmallow()
 
 
 # User Model
@@ -23,7 +19,7 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    costofpurchase = db.Column(db.Integer, nullable = False)
+    costofpurchase = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
     quantity_in_stock = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -46,3 +42,32 @@ class OrderItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
 
+
+# User Schema
+class UserSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
+
+
+# Product Schema
+class ProductSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Product
+
+
+# Order Schema
+class OrderSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Order
+
+
+# OrderItem Schema
+class OrderItemSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = OrderItem
+
+
+class UserIdSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
+        fields = ("id",)

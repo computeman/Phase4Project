@@ -36,7 +36,7 @@ const EditProductPage = () => {
     // Update product details using the API
     const token = localStorage.getItem("access_token");
 
-    fetch(`http://localhost:5000/api/products/${productId}`, {
+    fetch(`http://localhost:5000/api/products/update/${productId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

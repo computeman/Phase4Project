@@ -5,10 +5,10 @@ const OrdersPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch orders from the API with JWT token
     const token = localStorage.getItem("access_token");
 
     fetch("http://127.0.0.1:5000/orders", {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -16,7 +16,6 @@ const OrdersPage = () => {
       .then((response) => {
         if (!response.ok) {
           if (response.status === 401) {
-            // Unauthorized access, handle accordingly (e.g., redirect to login)
             setError("Unauthorized access. Please log in.");
           } else {
             throw new Error("Error fetching orders");
@@ -24,7 +23,10 @@ const OrdersPage = () => {
         }
         return response.json();
       })
-      .then((data) => setOrders(data))
+      .then((data) => {
+        console.log("API Response:", data); // Log the response
+        setOrders(data);
+      })
       .catch((error) => {
         console.error("Error fetching orders:", error);
         setError("Error fetching orders. Please try again.");
@@ -33,6 +35,7 @@ const OrdersPage = () => {
 
   const handleDeleteOrder = (orderId) => {
     const token = localStorage.getItem("access_token");
+
     fetch(`http://127.0.0.1:5000/api/orders/${orderId}`, {
       method: "DELETE",
       headers: {
@@ -43,8 +46,13 @@ const OrdersPage = () => {
         if (!response.ok) {
           throw new Error("Error deleting order");
         }
-        // Update orders list after successful deletion
-        setOrders(orders.filter((order) => order.id !== orderId));
+        return response.json();
+      })
+      .then(() => {
+        // Remove the deleted order from the state
+        setOrders((prevOrders) =>
+          prevOrders.filter((order) => order.id !== orderId)
+        );
       })
       .catch((error) => {
         console.error("Error deleting order:", error);
@@ -57,7 +65,6 @@ const OrdersPage = () => {
       <h2>Orders Page</h2>
       {error ? (
         <p>{error}</p>
-        
       ) : (
         <ul>
           {orders.map((order) => (
